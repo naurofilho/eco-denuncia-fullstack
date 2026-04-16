@@ -1,38 +1,45 @@
 # EcoDenúncia
 
-Plataforma web fullstack para registro e acompanhamento de denúncias ambientais.
+Sistema web fullstack para registro e acompanhamento de denúncias ambientais.
 
-## Objetivo
+## Descrição
 
-Permitir que usuários registrem denúncias ambientais com geolocalização e evidências, possibilitando acompanhamento e análise por administradores.
+O EcoDenúncia é uma plataforma que permite que cidadãos registrem ocorrências ambientais com geolocalização e evidências, possibilitando acompanhamento por administradores e órgãos responsáveis.
 
-## Tecnologias
+## Arquitetura
+
+O sistema segue arquitetura em três camadas:
 
 - Frontend: React.js
 - Backend: Django REST Framework
 - Banco de Dados: PostgreSQL
-- Autenticação: JWT
 
 ## Funcionalidades
 
-- Cadastro e login de usuários
+- Cadastro e autenticação de usuários
 - Registro de denúncias
-- Upload de imagens
+- Upload de mídias
 - Acompanhamento de status
 - Painel administrativo
 
-## Arquitetura
+## Segurança
 
-O sistema segue arquitetura cliente-servidor em três camadas:
+- Autenticação JWT
+- Validação de dados
+- Controle de acesso por perfil
 
-- Frontend (React)
-- Backend (API REST)
-- Banco de Dados (PostgreSQL)
+## Documentação
 
-## Diagramas
+Diagramas disponíveis na pasta `/docs`:
 
-Os diagramas do sistema estão disponíveis na pasta `/docs`.
+- Arquitetura
+- DER
+- Fluxo do usuário
 
-## Status do Projeto
+## Execução
 
-Projeto desenvolvido como Trabalho de Conclusão de Curso (TCC).
+### Backend
+
+```bash
+pip install -r requirements.txt
+python manage.py runserver
