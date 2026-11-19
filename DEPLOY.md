@@ -116,3 +116,4 @@ Cada `git push` na `main` publica de novo sozinho. A API só refaz o deploy quan
 | O admin abre sem cores nem estilo | O comando `collectstatic` falhou no build. Veja o log do deploy da API |
 | No passo 4, "'.venv\Scripts\Activate.ps1' não é reconhecido" | O ambiente não foi criado. Rode `python -m venv .venv` dentro de `backend` |
 | No passo 4, "a execução de scripts foi desabilitada neste sistema" | Rode `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` uma vez e tente de novo |
+| `UnknownSchemeError: Scheme 'https://' is unknown` | O `DATABASE_URL` recebeu outro endereço. Copie no Neon, em **Connect**, o endereço que começa com `postgresql://` |
