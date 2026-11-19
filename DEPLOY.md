@@ -54,6 +54,8 @@ endereços e as chaves do banco e do R2.
    | `FOTOS_ACCESS_KEY_ID` | O Access Key ID do token do R2 |
    | `FOTOS_SECRET_ACCESS_KEY` | O Secret Access Key do token do R2 |
    | `CORS_ALLOWED_ORIGINS` | `https://eco-denuncia.onrender.com` |
+   | `DJANGO_SUPERUSER_EMAIL` | O seu e-mail, que vira o login do admin do Django |
+   | `DJANGO_SUPERUSER_PASSWORD` | Uma senha forte só sua, com pelo menos 8 caracteres e que não seja comum |
    | `VITE_API_URL` | `https://eco-denuncia-api.onrender.com/api` |
 
    A chave secreta do Django (`DJANGO_SECRET_KEY`) o Render gera sozinho.
@@ -67,30 +69,20 @@ endereços e as chaves do banco e do R2.
 
 ## 4. Contas de teste e administrador
 
-O plano gratuito do Render não abre terminal no servidor. Por isso, as contas são criadas do
-seu computador, direto no banco do Neon. Precisa do Python 3.10 ou mais recente. No PowerShell,
-a partir da pasta do projeto:
-
-```powershell
-cd backend
-python -m venv .venv          # só na primeira vez: cria o ambiente do backend
-.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-$env:DJANGO_DEBUG = "1"
-$env:DATABASE_URL = "cole aqui o endereço do Neon"
-python manage.py popular_demo
-python manage.py createsuperuser
-Remove-Item Env:DATABASE_URL
-```
+O deploy da API cria as contas sozinho. Você não precisa rodar nada no computador, e o
+servidor gratuito do Render nem abre terminal. Em todo deploy, depois das migrações:
 
 - `popular_demo` cria as contas de teste que aparecem na tela de login (`maria@eco.br` e
-  `admin@eco.br`) e 6 denúncias de exemplo. A conta `admin@eco.br` usa o painel do site, mas não
-  tem permissão nenhuma no admin do Django.
-- `createsuperuser` cria a **sua** conta do admin, em
-  `https://eco-denuncia-api.onrender.com/admin/`. Use o seu e-mail como nome de usuário e uma
-  senha forte que só você saiba.
-- A última linha desliga o banco do Neon nesse terminal. Sem ela, o `runserver` local também
-  gravaria no banco do site publicado.
+  `admin@eco.br`) e 6 denúncias de exemplo. Nos deploys seguintes, ele não duplica nada nem troca
+  senhas. A conta `admin@eco.br` usa o painel do site, mas não tem permissão nenhuma no admin do
+  Django.
+- `criar_admin` cria a **sua** conta do admin, em `https://eco-denuncia-api.onrender.com/admin/`,
+  com o e-mail e a senha de `DJANGO_SUPERUSER_EMAIL` e `DJANGO_SUPERUSER_PASSWORD`. Se a conta já
+  existe, ele não muda nada. Depois do primeiro deploy, você pode apagar a variável da senha no
+  Render: a conta continua lá. Para trocar a senha depois, use o próprio admin.
+
+Rodar comandos do seu computador direto no banco do Neon também funciona, mas só em redes que
+liberam a porta 5432 do PostgreSQL. Redes de empresa costumam bloquear essa porta.
 
 ## 5. Conferir
 
@@ -103,7 +95,8 @@ Remove-Item Env:DATABASE_URL
 ## Atualizar o site
 
 Cada `git push` na `main` publica de novo sozinho. A API só refaz o deploy quando algo muda em
-`backend/`, e o site quando algo muda em `frontend/`. As migrações do banco rodam no deploy da API.
+`backend/`, e o site quando algo muda em `frontend/`. As migrações do banco e a criação das
+contas rodam no deploy da API.
 
 ## Se algo der errado
 
@@ -114,6 +107,7 @@ Cada `git push` na `main` publica de novo sozinho. A API só refaz o deploy quan
 | O login mostra "Não foi possível falar com o servidor" | A API está acordando (espere 1 minuto), ou o `VITE_API_URL` ou o `CORS_ALLOWED_ORIGINS` está errado |
 | A denúncia é enviada, mas a foto não aparece | O `FOTOS_ENDPOINT` tem o nome do bucket no fim, ou o token do R2 não tem acesso ao bucket |
 | O admin abre sem cores nem estilo | O comando `collectstatic` falhou no build. Veja o log do deploy da API |
-| No passo 4, "'.venv\Scripts\Activate.ps1' não é reconhecido" | O ambiente não foi criado. Rode `python -m venv .venv` dentro de `backend` |
-| No passo 4, "a execução de scripts foi desabilitada neste sistema" | Rode `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` uma vez e tente de novo |
+| O deploy da API falha com "Senha do administrador recusada" | A senha em `DJANGO_SUPERUSER_PASSWORD` é curta ou comum demais. Troque por uma mais forte |
+| O deploy da API falha com "Defina DJANGO_SUPERUSER_EMAIL e DJANGO_SUPERUSER_PASSWORD juntos" | Só uma das duas variáveis foi preenchida. Preencha as duas, ou apague as duas para não criar administrador |
 | `UnknownSchemeError: Scheme 'https://' is unknown` | O `DATABASE_URL` recebeu outro endereço. Copie no Neon, em **Connect**, o endereço que começa com `postgresql://` |
+| Um comando do Django fica parado no seu computador ao usar o banco do Neon | A rede bloqueia a porta 5432. Deixe o deploy criar as contas (passo 4) ou use outra rede |

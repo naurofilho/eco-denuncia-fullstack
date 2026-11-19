@@ -8,8 +8,17 @@ services:
     plan: free
     region: virginia
     rootDir: backend
-    # O plano gratuito não roda comandos antes do deploy, então as migrações rodam no build.
-    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate
+    # O plano gratuito não roda comandos antes do deploy nem abre terminal no servidor. Por isso o
+    # build também aplica as migrações e cria as contas:
+    # - popular_demo: contas de teste e denúncias de exemplo. Não duplica nada nem troca senhas.
+    #   Tire esta linha se o site deixar de ser só uma demonstração.
+    # - criar_admin: o seu administrador, com DJANGO_SUPERUSER_EMAIL e DJANGO_SUPERUSER_PASSWORD.
+    buildCommand: >-
+      pip install -r requirements.txt &&
+      python manage.py collectstatic --noinput &&
+      python manage.py migrate &&
+      python manage.py popular_demo --forcar &&
+      python manage.py criar_admin
     startCommand: gunicorn ecodenuncia.wsgi:application
     envVars:
       - key: PYTHON_VERSION
@@ -30,6 +39,10 @@ services:
       - key: FOTOS_ACCESS_KEY_ID
         sync: false
       - key: FOTOS_SECRET_ACCESS_KEY
+        sync: false
+      - key: DJANGO_SUPERUSER_EMAIL
+        sync: false
+      - key: DJANGO_SUPERUSER_PASSWORD
         sync: false
 
   # Site React. Arquivos estáticos não dormem: a página abre na hora.

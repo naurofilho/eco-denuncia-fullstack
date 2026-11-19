@@ -33,7 +33,9 @@ VITE_API_URL=http://localhost:8000/api
 | Cidadã | maria@eco.br | maria123 |
 | Cidadão | joao@eco.br | joao1234 |
 
-O comando só roda com `DJANGO_DEBUG=1`, porque as senhas são fracas.
+O comando só roda com `DJANGO_DEBUG=1`, porque as senhas são fracas. A exceção é o site de
+demonstração do Render, que roda o comando com `--forcar` a cada deploy. Nos deploys seguintes,
+ele não duplica nada nem troca senhas.
 
 ### Admin do Django
 
@@ -44,6 +46,10 @@ python manage.py createsuperuser
 Use o e-mail como nome de usuário. O login do site aceita tanto o e-mail quanto o nome de usuário.
 Para que alguém da fiscalização use o painel do site, marque "Membro da equipe" (`is_staff`) no
 cadastro dessa pessoa no admin.
+
+Onde não dá para responder às perguntas do `createsuperuser`, como no build do Render, use
+`python manage.py criar_admin`. Ele lê o e-mail e a senha de `DJANGO_SUPERUSER_EMAIL` e
+`DJANGO_SUPERUSER_PASSWORD`, confere a força da senha e não muda nada se a conta já existe.
 
 ## Endpoints
 
@@ -114,8 +120,8 @@ Valores aceitos:
 python manage.py test
 ```
 
-São 30 testes cobrindo cadastro, login, permissões, anonimato, validações, fotos (inclusive os
-links assinados do bucket), histórico de status e o comando `popular_demo`.
+São 36 testes cobrindo cadastro, login, permissões, anonimato, validações, fotos (inclusive os
+links assinados do bucket), histórico de status e os comandos `popular_demo` e `criar_admin`.
 
 ## PostgreSQL
 
