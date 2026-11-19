@@ -1,0 +1,9 @@
+# Versões testadas juntas. Para atualizar, mude aqui e rode "python manage.py test".
+Django==5.2.19
+djangorestframework==3.18.3
+djangorestframework-simplejwt==5.5.1
+django-cors-headers==4.9.0
+Pillow==11.3.0
+python-dotenv==1.2.4
+# Só necessário com PostgreSQL (POSTGRES_DB no .env).
+psycopg[binary]==3.3.9
