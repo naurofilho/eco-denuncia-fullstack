@@ -33,7 +33,8 @@ para analisar as denúncias e atualizar o status.
 - Cada cidadão só vê as próprias denúncias, e só a equipe muda o status.
 - Ninguém edita nem apaga denúncias pela API.
 - Validação dos dados no frontend e no backend.
-- Fotos regravadas no servidor, sem os metadados do arquivo original.
+- Fotos regravadas no servidor, sem os metadados do arquivo original. No site publicado, elas
+  ficam num bucket privado e só abrem por links que valem 1 hora.
 - Limite de tentativas no login, no cadastro e no envio de denúncias.
 
 ## Como rodar
@@ -79,6 +80,11 @@ demonstração, com os dados guardados no navegador.
 cd backend
 python manage.py test
 ```
+
+## Publicar
+
+Para colocar uma demonstração no ar de graça, com o site e a API no Render, o banco no Neon e as
+fotos no Cloudflare R2, siga o [`DEPLOY.md`](DEPLOY.md).
 
 Mais detalhes em [`backend/README.md`](backend/README.md) (endpoints, regras de acesso, publicação)
 e em [`frontend/README.md`](frontend/README.md) (telas e estrutura).

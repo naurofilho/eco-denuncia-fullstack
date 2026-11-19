@@ -37,6 +37,12 @@ VITE_API_URL=http://localhost:8000/api
 
 O backend já libera `http://localhost:5173` no CORS.
 
+### Site de demonstração publicado
+
+Com `VITE_SITE_DEMO=1`, o site ligado ao Django mostra as contas de teste na tela de login, avisa
+que o primeiro acesso pode demorar e pede no rodapé que ninguém envie dados reais. O passo a passo
+da publicação está em `../DEPLOY.md`.
+
 ## Telas
 
 | Rota | Tela |

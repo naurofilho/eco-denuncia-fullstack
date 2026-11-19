@@ -4,7 +4,7 @@ import { LoaderCircle } from 'lucide-react';
 import Campo from '../components/Campo';
 import CampoSenha from '../components/CampoSenha';
 import { useAuth } from '../context/AuthContext';
-import { MODO_DEMO } from '../services/api';
+import { MODO_DEMO, SITE_DEMO } from '../services/api';
 import { useTitulo } from '../hooks/useTitulo';
 
 const EMAIL_VALIDO = /^\S+@\S+\.\S+$/;
@@ -95,10 +95,11 @@ export default function Entrar() {
           Ainda não tem conta? <Link to="/cadastro" state={destino ? { de: destino } : undefined}>Criar conta</Link>
         </p>
 
-        {MODO_DEMO && (
+        {(MODO_DEMO || SITE_DEMO) && (
           <div className="alerta alerta-info demo">
             <p>
-              <strong>Modo de demonstração.</strong> Use uma conta de teste para ver o site funcionando:
+              <strong>{MODO_DEMO ? 'Modo de demonstração.' : 'Site de demonstração.'}</strong> Use uma conta
+              de teste para ver o site funcionando:
             </p>
             <div className="demo-botoes">
               {CONTAS_DEMO.map((c) => (
@@ -116,6 +117,12 @@ export default function Entrar() {
                 </button>
               ))}
             </div>
+            {SITE_DEMO && (
+              <p className="demo-nota">
+                O servidor desliga quando fica sem uso. Se ele estiver parado, a primeira entrada pode levar até 1
+                minuto.
+              </p>
+            )}
           </div>
         )}
       </div>

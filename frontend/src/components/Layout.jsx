@@ -3,7 +3,7 @@ import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { ClipboardList, House, LayoutDashboard, LogIn, LogOut, Phone, Plus } from 'lucide-react';
 import Logo from './Logo';
 import { useAuth } from '../context/AuthContext';
-import { MODO_DEMO } from '../services/api';
+import { MODO_DEMO, SITE_DEMO } from '../services/api';
 
 export default function Layout() {
   const { usuario, sair } = useAuth();
@@ -87,6 +87,11 @@ export default function Layout() {
           </p>
           {MODO_DEMO && (
             <p className="rodape-demo">Modo de demonstração: os dados ficam salvos só neste navegador.</p>
+          )}
+          {SITE_DEMO && (
+            <p className="rodape-demo">
+              Site de demonstração: não envie denúncias reais nem dados pessoais. Os dados podem ser apagados.
+            </p>
           )}
         </div>
       </footer>

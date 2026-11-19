@@ -101,7 +101,8 @@ Valores aceitos:
 - Se a conta for apagada, as denúncias continuam no banco (`user` fica vazio).
 - **Fotos**: cada foto é regravada no servidor como JPEG de no máximo 1600 px, sem os metadados
   do arquivo original (GPS, modelo do celular). O nome do arquivo é aleatório. O limite é de
-  10 MB por foto.
+  10 MB por foto. Com um bucket configurado (`FOTOS_*` no `.env`), as fotos ficam num bucket
+  privado e a API entrega cada uma com um link assinado que vale 1 hora.
 - **Limite de tentativas**: 20 por minuto no login e no cadastro, e 30 denúncias por hora por
   usuário. Os dois limites podem ser ajustados no `.env` (`LIMITE_AUTENTICACAO`, `LIMITE_DENUNCIAS`).
 - O token de acesso dura 30 minutos e o de renovação, 7 dias. O frontend renova o acesso
@@ -113,23 +114,32 @@ Valores aceitos:
 python manage.py test
 ```
 
-São 28 testes cobrindo cadastro, login, permissões, anonimato, validações, fotos, histórico de
-status e o comando `popular_demo`.
+São 30 testes cobrindo cadastro, login, permissões, anonimato, validações, fotos (inclusive os
+links assinados do bucket), histórico de status e o comando `popular_demo`.
 
 ## PostgreSQL
 
-Sem configuração, o backend usa SQLite (arquivo `db.sqlite3`). Para usar PostgreSQL, preencha no
-`.env` as variáveis `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_HOST` e
-`POSTGRES_PORT`, e rode `python manage.py migrate` de novo.
+Sem configuração, o backend usa SQLite (arquivo `db.sqlite3`). Para usar PostgreSQL, defina no
+`.env` o endereço completo em `DATABASE_URL` (como o que o Neon mostra) ou as variáveis
+`POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_HOST` e `POSTGRES_PORT`. Depois
+rode `python manage.py migrate` de novo.
 
-## Antes de publicar
+## Publicar
+
+O passo a passo para publicar de graça no Render, com o banco no Neon e as fotos no Cloudflare R2,
+está em [`../DEPLOY.md`](../DEPLOY.md). Em qualquer hospedagem:
 
 - `DJANGO_DEBUG=0`, uma `DJANGO_SECRET_KEY` longa e aleatória e `DJANGO_ALLOWED_HOSTS` com o
-  domínio real.
+  domínio real. No Render, o endereço `.onrender.com` entra sozinho.
 - `CORS_ALLOWED_ORIGINS` com o endereço real do frontend.
-- Use HTTPS.
-- Com `DEBUG=0` o Django não serve as fotos. Configure o servidor web (por exemplo, o nginx) ou um
-  armazenamento de arquivos para `/media/`. As fotos têm endereço aleatório, mas quem tiver o link
-  consegue abrir. Se precisar de mais sigilo, sirva as fotos por uma view que confira o login.
+- Use HTTPS. Se um proxy recebe o HTTPS e repassa ao Django, defina `DJANGO_ATRAS_DE_PROXY=1`.
+  No Render isso já é automático.
+- Build: `pip install -r requirements.txt`, `python manage.py collectstatic --noinput` e
+  `python manage.py migrate`. Para iniciar: `gunicorn ecodenuncia.wsgi:application`. Os arquivos
+  do admin saem pelo WhiteNoise, sem configurar servidor web.
+- Com `DEBUG=0` o Django não serve a pasta `media/`. Use um bucket (`FOTOS_*`) ou configure o
+  servidor web para servir `/media/`. Sem bucket, quem tiver o link de uma foto consegue abrir.
+- No Render, o servidor se recusa a subir sem banco e bucket externos, porque o disco dele é
+  apagado a cada deploy.
 - A lista `/denuncias/` não é paginada. Com muitos registros, vale ativar a paginação do DRF e
   ajustar o painel do frontend para carregar por páginas.

@@ -353,6 +353,11 @@
   margin-top: 0.75rem;
 }
 
+.demo-nota {
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
+}
+
 @media (min-width: 480px) {
   .auth-caixa {
     padding: 36px 32px;

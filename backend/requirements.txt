@@ -5,5 +5,12 @@ djangorestframework-simplejwt==5.5.1
 django-cors-headers==4.9.0
 Pillow==11.3.0
 python-dotenv==1.2.4
-# Só necessário com PostgreSQL (POSTGRES_DB no .env).
+# PostgreSQL (DATABASE_URL ou POSTGRES_DB no .env).
 psycopg[binary]==3.3.9
+dj-database-url==3.1.2
+# Publicação: servidor de produção e arquivos do admin.
+gunicorn==26.2.0
+whitenoise==6.12.0
+# Fotos num bucket compatível com S3, como o Cloudflare R2 (FOTOS_BUCKET no .env).
+django-storages[s3]==1.14.6
+boto3==1.43.124

@@ -4,8 +4,10 @@ import tempfile
 from datetime import timedelta
 from io import BytesIO, StringIO
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
+from django.core.exceptions import ImproperlyConfigured
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
 from django.core.management.base import CommandError
@@ -13,6 +15,8 @@ from django.test import override_settings
 from django.utils import timezone
 from PIL import Image
 from rest_framework.test import APITestCase
+
+from ecodenuncia.armazenamento import armazenamento_fotos
 
 from .models import Denuncia, FotoDenuncia, HistoricoStatus
 
@@ -161,6 +165,34 @@ class DenunciaTests(APITestCase):
         self.assertTrue(vista_equipe['anonima'])
         self.client.force_authenticate(self.maria)
         self.assertEqual(self.client.get(f'/api/denuncias/{id_}/').data['user'], self.maria.id)
+
+    # ---------- Fotos num bucket (Cloudflare R2, S3) ----------
+
+    def test_fotos_no_bucket_saem_com_link_assinado(self):
+        bucket = armazenamento_fotos({
+            'FOTOS_BUCKET': 'fotos-teste',
+            'FOTOS_ENDPOINT': 'https://conta.r2.cloudflarestorage.com',
+            'FOTOS_ACCESS_KEY_ID': 'chave-de-teste',
+            'FOTOS_SECRET_ACCESS_KEY': 'segredo-de-teste',
+        })
+        denuncia = Denuncia.objects.create(
+            user=self.maria, tipo='lixo', descricao='Entulho jogado na calçada perto do córrego.',
+            latitude='-15.793420', longitude='-47.882710',
+        )
+        # Só o nome do arquivo: gerar o link assinado não acessa o bucket.
+        FotoDenuncia.objects.create(denuncia=denuncia, imagem='denuncias/1/foto.jpg')
+        self.client.force_authenticate(self.maria)
+        with override_settings(STORAGES={**settings.STORAGES, 'default': bucket}):
+            link = self.client.get(f'/api/denuncias/{denuncia.pk}/').json()['fotos'][0]
+        self.assertTrue(
+            link.startswith('https://conta.r2.cloudflarestorage.com/fotos-teste/denuncias/1/foto.jpg?'), link
+        )
+        self.assertIn('X-Amz-Signature=', link)
+        self.assertIn('X-Amz-Expires=3600', link)
+
+    def test_bucket_incompleto_e_recusado(self):
+        with self.assertRaisesMessage(ImproperlyConfigured, 'FOTOS_ENDPOINT'):
+            armazenamento_fotos({'FOTOS_BUCKET': 'fotos-teste'})
 
     # ---------- Mudança de status ----------
 
